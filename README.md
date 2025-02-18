@@ -12,29 +12,100 @@ Used to accept (or deny) the use of the private key(s) added to the SSH authenti
 ## Installation
 
 ### [Homebrew](https://brew.sh/)
-* Run:
 
-    ```
-    $ brew install theseal/ssh-askpass/ssh-askpass
-    ```
-* Follow caveats
+1. Run:
+
+   ```sh
+   brew install xquartz theseal/ssh-askpass/ssh-askpass
+   ```
+
+   See: [why install XQuartz?](#why-install-xquartz).
+
+1. Log out and log in again.
+
+1. Check that the `DISPLAY` environment variable is now set for `ssh-agent`
+   by XQuartz in "inherited environment":
+
+   ```sh
+   launchctl print gui/$UID/com.openssh.ssh-agent
+   ```
+
+1. On Apple Silicon Macs, run:
+
+   ```sh
+   sudo mkdir -p /private/var/select/X11/bin
+   sudo ln -s /opt/homebrew/bin/ssh-askpass /private/var/select/X11/bin/
+   ```
+
+   On Intel Macs, run:
+
+   ```sh
+   sudo mkdir -p /private/var/select/X11/bin
+   sudo ln -s /usr/local/bin/ssh-askpass /private/var/select/X11/bin/
+   ```
 
 ### [MacPorts](https://www.macports.org)
-* Install:
 
-    ```
-    $ sudo port install ssh-askpass
-    ```
+1. Install [XQuartz](https://www.xquartz.org/) from their packages.
+
+   MacPorts package this as well, but they've modified their install to
+   disable the user LaunchAgent by default. The upstream package just works.
+
+   See: [why install XQuartz?](#why-install-xquartz).
+
+1. Log out and log in again.
+
+1. Check that the `DISPLAY` environment variable is now set for `ssh-agent`
+   by XQuartz in "inherited environment":
+
+   ```sh
+   launchctl print gui/$UID/com.openssh.ssh-agent
+   ```
+
+1. Run:
+
+   ```sh
+   sudo port install ssh-askpass
+   sudo mkdir -p /private/var/select/X11/bin
+   sudo ln -s /usr/local/bin/ssh-askpass /private/var/select/X11/bin/
+   ```
 
 ### Without Homebrew/MacPorts
 
-* Run:
+1. Install [XQuartz](https://www.xquartz.org/) from their packages.
+
+   See: [why install XQuartz?](#why-install-xquartz).
+
+1. Log out and log in again, so Apple's `ssh-agent` picks up the `DISPLAY`
+   environment variables.
+
+1. Check that the `DISPLAY` environment variable is now set for `ssh-agent`
+   by XQuartz in "inherited environment":
+
+   ```sh
+   launchctl print gui/$UID/com.openssh.ssh-agent
+   ```
+
+1. Install `ssh-askpass` to `/private/var/select/X11/bin/`:
+
+   ```sh
+   sudo mkdir -p /private/var/select/X11/bin
+   sudo cp ssh-askpass /private/var/select/X11/bin/
+   ```
+
+   macOS has a broken symlink at `/usr/X11R6` to this path, so this
+   creates it and puts `ssh-askpass` there.
+
+You should now be able to use it with `ssh-add -c`.
+
+If some tool does not look for `ssh-askpass` in
+`/usr/X11R6/bin/ssh-askpass`, you can a LaunchAgent to provide the path in
+the `SSH_ASKPASS` environment variable:
+
+```sh
+cp ssh-askpass.plist ~/Library/LaunchAgents/
+launchctl load -w ~/Library/LaunchAgents/ssh-askpass.plist
 ```
-$ cp ssh-askpass /usr/local/bin/
-$ cp ssh-askpass.plist ~/Library/LaunchAgents/
-$ launchctl load -w ~/Library/LaunchAgents/ssh-askpass.plist
-```
-* No need to log out; you can add keys to the agent with `ssh-add -c`
 
 ## Enabling keyboard navigation
 For security reasons ssh-askpass defaults to cancel since it's too easy to
@@ -53,6 +124,21 @@ ssh-keys. To make it easier to press `OK`:
 * At the bottom of the `Shortcuts` tab, check option `Use keyboard navigation to move focus between controls`.
 
 Now you can press ⇥+spacebar to press `OK`.
+
+## Why install XQuartz?
+
+[Sonoma 14.6 and later block environment variables set by `launchctl setenv` from system LaunchAgents](https://github.com/theseal/ssh-askpass/issues/54#issuecomment-2264396356)
+(eg: Apple's `ssh-agent`).
+
+However, these changes **do not** affect environment variables set by
+non-system LaunchAgents using `SecureSocketWithKey`.
+
+When XQuartz' LaunchAgent is configured correctly, it instructs `launchd` to
+setup a socket and expose it with the `DISPLAY` environment variable.
+
+This also means you can't rely on the `SSH_ASKPASS` environment variable to
+tell Apple's `ssh-agent` where `ssh-askpass` is - it must be available at
+the default location (`/usr/X11R6/bin/ssh-askpass`).
 
 ## License
 ISC license

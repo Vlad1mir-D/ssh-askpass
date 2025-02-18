@@ -11,10 +11,8 @@
             <string>/bin/sh</string>
             <string>-pc</string>
             <string>#!/bin/sh
-launchctl setenv SSH_ASKPASS "${SSH_ASKPASS:=/usr/local/bin/ssh-askpass}"
-launchctl setenv SUDO_ASKPASS "${SUDO_ASKPASS:=/usr/local/bin/ssh-askpass}"
-launchctl list org.xquartz.startx >/dev/null || launchctl setenv DISPLAY "${DISPLAY:=ssh-askpass}" # only if not already set by Xquartz
-launchctl stop com.openssh.ssh-agent # to make sure it picks up environment
+launchctl setenv SSH_ASKPASS "${SSH_ASKPASS:=/private/var/select/X11/bin/ssh-askpass}"
+launchctl setenv SUDO_ASKPASS "${SUDO_ASKPASS:=/private/var/select/X11/bin/ssh-askpass}"
             </string>
         </array>
         <key>RunAtLoad</key>
