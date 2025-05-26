@@ -5,7 +5,7 @@ ssh-askpass for OS X/macOS. Works in (at least) 10.7+ (including Monterey)
 
 Used to accept (or deny) the use of the private key(s) added to the SSH authentication agent with `ssh-add -c`.
 
-![Screenshot](https://github.com/theseal/ssh-askpass/raw/master/sample/ssh-askpass.png)
+![Screenshot](https://github.com/Vlad1mir-D/ssh-askpass/raw/master/sample/ssh-askpass.png)
 
 **If you’re having trouble with ssh-askpass after OS upgrade, please follow the installation steps again.**
 
@@ -16,7 +16,7 @@ Used to accept (or deny) the use of the private key(s) added to the SSH authenti
 1. Run:
 
    ```sh
-   brew install xquartz theseal/ssh-askpass/ssh-askpass
+   brew install xquartz Vlad1mir-D/ssh-askpass/ssh-askpass
    ```
 
    See: [why install XQuartz?](#why-install-xquartz).
